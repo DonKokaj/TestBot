@@ -1,7 +1,7 @@
 name: Run Chatbot Scraper
 
 on:
-  workflow_dispatch:  # Enables manual triggering
+  workflow_dispatch:  # Allows manual execution
   schedule:
     - cron: '0 * * * *'  # Runs every hour
 
@@ -11,23 +11,32 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.x'
 
     - name: Install dependencies
       run: |
+        pip install --upgrade pip
         pip install pandas selenium
 
     - name: Install Chrome & ChromeDriver
       run: |
         sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
-        sudo apt-get install -y chromium-chromedriver
-        sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+        sudo apt-get install -y google-chrome-stable chromium-chromedriver
+        if [ ! -f /usr/bin/chromedriver ]; then 
+          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+        fi
+        CHROMEDRIVER_PATH=$(which chromedriver)
+        echo "Using ChromeDriver at $CHROMEDRIVER_PATH"
+
+    - name: Verify Chrome & ChromeDriver Installation
+      run: |
+        google-chrome --version
+        chromedriver --version
 
     - name: Run Python script
       run: python chatbot_scraper.py
