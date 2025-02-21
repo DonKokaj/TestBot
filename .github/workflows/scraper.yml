@@ -33,7 +33,7 @@ jobs:
       run: python chatbot_scraper.py
 
     - name: Upload results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: chatbot-responses
         path: chatbot_responses.csv
