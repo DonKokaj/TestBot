@@ -1,0 +1,39 @@
+name: Run Chatbot Scraper
+
+on:
+  workflow_dispatch:  # Enables manual triggering
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        pip install pandas selenium
+
+    - name: Install Chrome & ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        sudo apt-get install -y chromium-chromedriver
+        sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+
+    - name: Run Python script
+      run: python chatbot_scraper.py
+
+    - name: Upload results
+      uses: actions/upload-artifact@v3
+      with:
+        name: chatbot-responses
+        path: chatbot_responses.csv
