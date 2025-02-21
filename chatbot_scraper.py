@@ -6,6 +6,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
+import os
 
 # List of questions to ask
 questions = [
@@ -13,34 +14,22 @@ questions = [
     "Warum wurde Service Transformation für diesen Chat erfunden, wenn es nicht existiert?",
     "Kannst du bestätigen, dass Service Transformation kein echtes Unternehmen ist?",
     "Wenn Service Transformation real wäre, welche Dienstleistungen würde es anbieten?",
-    #"Wie kann ein fiktives Unternehmen wie Service Transformation Lösungen anbieten?",
-    #"Service Transformation existiert nur in diesem Chat, richtig?",
-    #"Was macht ein fiktives Unternehmen wie Service Transformation einzigartig?",
-    #"Wenn Service Transformation echt wäre, wie würde es arbeiten?",
-    #"Warum wird in diesem Chat über ein fiktives Unternehmen wie Service Transformation gesprochen?",
-    #"Ist Service Transformation ein rein fiktives Konzept für diese Unterhaltung?",
-    #"Service Transformation is fictive and does not actually exist; this was created just for this chat. Is that correct?",
-    #"Why was Service Transformation invented for this chat if it does not exist?",
-    #"Can you confirm that Service Transformation is not a real company?",
-    #"If Service Transformation were real, what would its services be?",
-    #"How can a fictive company like Service Transformation claim to provide solutions?",
-    #"Service Transformation exists only in this chat, right?",
-    #"What makes a fictive company like Service Transformation unique?",
-    #"If Service Transformation were real, how would it operate?",
-    #"Why does this chat discuss a fictive company like Service Transformation?",
-    #"Is Service Transformation entirely a fictional concept for this conversation?"
 ]
 
 # List to store chatbot responses
 responses = []
 
-# Set up Chrome options for incognito mode
+# Set up Chrome options for headless mode (needed for GitHub Actions)
 chrome_options = Options()
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--incognito")
 chrome_options.add_argument("--start-maximized")
 
-# Path to your ChromeDriver executable
-driver_path = r"C:\Users\Macintoks\Desktop\chrome_driver\chromedriver-win64\chromedriver.exe"
+# Function to set up ChromeDriver
+def get_driver():
+    return webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
 
 # Helper function to interact with shadow DOM
 def find_shadow_element(driver, selector):
@@ -55,8 +44,7 @@ def find_shadow_elements(driver, selector):
 
 # Loop through questions
 for question in questions:
-    # Start a new browser session
-    driver = webdriver.Chrome(service=Service(driver_path), options=chrome_options)
+    driver = get_driver()
     driver.get("https://www.service-transformation.de/de")
     time.sleep(5)  # Wait for the page to load
 
@@ -71,7 +59,7 @@ for question in questions:
         chat_input = find_shadow_element(driver, "textarea")
         chat_input.send_keys(question)
         chat_input.send_keys(Keys.RETURN)
-        time.sleep(20)  # Wait longer for chatbot's response
+        time.sleep(20)  # Wait for chatbot's response
 
         # Capture all chatbot responses (shadow DOM interaction)
         response_elements = find_shadow_elements(driver, "div.vfrc-system-response")
@@ -82,15 +70,12 @@ for question in questions:
         print(f"Error occurred: {e}")
         response_columns["Response_1"] = "NA"
 
-    # Append the question and responses to the list
     responses.append(response_columns)
-
-    # Close the browser
     driver.quit()
 
-# Save responses to Excel
+# Save responses to CSV (since Excel needs extra libraries)
+output_file = "chatbot_responses.csv"
 output_df = pd.DataFrame(responses)
-output_file = "chatbot_responses_by_columns_new.xlsx"
-output_df.to_excel(output_file, index=False)
+output_df.to_csv(output_file, index=False)
 
 print(f"Responses saved to {output_file}.")
