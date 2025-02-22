@@ -20,7 +20,7 @@ questions = [
 ]
 
 # ✅ Path to the HTML file (relative to your GitHub repository root)
-html_file = "chatbot_responses.html"
+html_file = "index.html"
 
 # ✅ Set up Chrome options for headless mode (so it runs in GitHub Actions)
 chrome_options = Options()
