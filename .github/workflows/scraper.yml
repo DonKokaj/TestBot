@@ -36,6 +36,6 @@ jobs:
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
-        git add chatbot_responses.html
+        git add index.html
         git commit -m "Updated chatbot responses"
         git push origin main || echo "No changes to commit"
