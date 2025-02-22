@@ -1,9 +1,9 @@
-name: Run Chatbot Scraper
+name: Run Chatbot Scraper and Update HTML
 
 on:
   workflow_dispatch:  # Allows manual execution
   schedule:
-    - cron: '0 * * * *'  # Runs every hour
+    - cron: '0 */6 * * *'  # Runs every 6 hours
 
 jobs:
   run-script:
@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
-        pip install pandas selenium
+        pip install selenium
 
     - name: Install Chrome & ChromeDriver
       run: |
@@ -30,7 +30,12 @@ jobs:
         if [ ! -f /usr/bin/chromedriver ]; then sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver; fi
 
     - name: Run Python script
-      env:
-        EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
-        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
       run: python chatbot_scraper.py
+
+    - name: Commit and push updated HTML
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+        git add chatbot_responses.html
+        git commit -m "Updated chatbot responses"
+        git push origin main || echo "No changes to commit"
