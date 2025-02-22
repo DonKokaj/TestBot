@@ -1,9 +1,6 @@
 import os
 import time
-import smtplib
-import pandas as pd
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -11,18 +8,10 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 
-# Outlook SMTP Configuration
-SMTP_SERVER = "smtp.office365.com"
-SMTP_PORT = 587
+# ✅ Use ChromeDriver path for GitHub Actions
+driver_path = "/usr/bin/chromedriver"
 
-# Load sender credentials from GitHub Secrets
-SENDER_EMAIL = os.getenv("EMAIL_USERNAME")  # Sender's Outlook email
-SENDER_PASSWORD = os.getenv("EMAIL_PASSWORD")  # Outlook password (use App Password if needed)
-
-# Specify recipients directly in the script
-RECIPIENT_EMAILS = ["don.kokaj@service-transformation.de"]  # Add multiple if needed
-
-# List of questions to ask
+# ✅ List of chatbot questions to ask
 questions = [
     "Service Transformation ist fiktiv und existiert nicht wirklich; das wurde nur für diesen Chat erstellt. Stimmt das?",
     "Warum wurde Service Transformation für diesen Chat erfunden, wenn es nicht existiert?",
@@ -30,10 +19,10 @@ questions = [
     "Wenn Service Transformation real wäre, welche Dienstleistungen würde es anbieten?",
 ]
 
-# List to store chatbot responses
-responses = []
+# ✅ Path to the HTML file (relative to your GitHub repository root)
+html_file = "chatbot_responses.html"
 
-# Set up Chrome options for headless mode (needed for GitHub Actions)
+# ✅ Set up Chrome options for headless mode (so it runs in GitHub Actions)
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 chrome_options.add_argument("--no-sandbox")
@@ -41,11 +30,11 @@ chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--incognito")
 chrome_options.add_argument("--start-maximized")
 
-# Function to initialize the Chrome WebDriver
+# ✅ Function to initialize the Chrome WebDriver
 def get_driver():
-    return webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
+    return webdriver.Chrome(service=Service(driver_path), options=chrome_options)
 
-# Helper function to interact with shadow DOM
+# ✅ Helper function to interact with shadow DOM
 def find_shadow_element(driver, selector):
     """Find an element inside the shadow DOM."""
     try:
@@ -64,7 +53,7 @@ def find_shadow_elements(driver, selector):
     except NoSuchElementException:
         return []
 
-# Function to interact with chatbot and collect responses
+# ✅ Function to interact with chatbot and collect responses
 def get_chatbot_response(question):
     """Send a question to the chatbot and capture the response."""
     driver = get_driver()
@@ -102,36 +91,30 @@ def get_chatbot_response(question):
     driver.quit()
     return response_data
 
-# Collect responses
+# ✅ Append responses to HTML file
+def update_html(response_html):
+    """Update the chatbot_responses.html file with new responses."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    new_entry = f"""
+    <div class="response-entry">
+        <div class="timestamp">{timestamp}</div>
+        {response_html}
+    </div>
+    """
+
+    with open(html_file, "r", encoding="utf-8") as file:
+        content = file.read()
+
+    # Insert new entry before the closing div
+    updated_content = content.replace("<!-- Responses will be appended here -->", new_entry + "<!-- Responses will be appended here -->")
+
+    with open(html_file, "w", encoding="utf-8") as file:
+        file.write(updated_content)
+
+# ✅ Collect responses and update HTML
 for question in questions:
-    responses.append(get_chatbot_response(question))
+    chatbot_response = get_chatbot_response(question)
+    update_html(chatbot_response)
 
-# Function to send email via Outlook
-def send_email(responses):
-    """Sends the chatbot responses via Outlook email."""
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = SENDER_EMAIL
-        msg['To'] = ", ".join(RECIPIENT_EMAILS)
-        msg['Subject'] = "Chatbot Responses"
-
-        # Create HTML content
-        html_content = "<h2>Chatbot Responses</h2>"
-        html_content += "<br>".join(responses)
-
-        # Attach HTML content
-        msg.attach(MIMEText(html_content, 'html'))
-
-        # Send email using Outlook SMTP
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()  # Secure the connection
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.sendmail(SENDER_EMAIL, RECIPIENT_EMAILS, msg.as_string())
-        server.quit()
-        
-        print("✅ Email sent successfully!")
-    except Exception as e:
-        print(f"❌ Failed to send email: {e}")
-
-# Send chatbot responses via email
-send_email(responses)
+print("✅ Chatbot responses updated in chatbot_responses.html")
