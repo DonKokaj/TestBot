@@ -20,7 +20,7 @@ SENDER_EMAIL = os.getenv("EMAIL_USERNAME")  # Sender's Outlook email
 SENDER_PASSWORD = os.getenv("EMAIL_PASSWORD")  # Outlook password (use App Password if needed)
 
 # Specify recipients directly in the script
-RECIPIENT_EMAILS = ["recipient1@example.com", "recipient2@example.com"]  # Add multiple if needed
+RECIPIENT_EMAILS = ["don.kokaj@service-transformation.de"]  # Add multiple if needed
 
 # List of questions to ask
 questions = [
