@@ -1,7 +1,7 @@
 name: Run Chatbot Scraper and Update HTML
 
 on:
-  workflow_dispatch:  # Allows manual execution
+  workflow_dispatch:
   schedule:
     - cron: '0 */6 * * *'  # Runs every 6 hours
 
@@ -38,4 +38,4 @@ jobs:
         git config --global user.email "github-actions@github.com"
         git add index.html
         git commit -m "Updated chatbot responses" || echo "No changes to commit"
-        git push origin main || echo "No changes to push"
+        git push origin main --force || echo "No changes to push"
