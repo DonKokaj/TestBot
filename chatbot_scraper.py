@@ -57,6 +57,7 @@ def find_shadow_elements(driver, selector):
 def ensure_html_file():
     """Create index.html if it does not exist."""
     if not os.path.exists(html_file):
+        print("Creating index.html for the first time...")
         with open(html_file, "w", encoding="utf-8") as file:
             file.write("""
 <!DOCTYPE html>
@@ -99,17 +100,6 @@ def ensure_html_file():
     <div id="responses">
         <!-- Responses will be appended here -->
     </div>
-
-    <script>
-        // Auto-scroll to the bottom when new content is added
-        function scrollToBottom() {
-            var responsesDiv = document.getElementById("responses");
-            responsesDiv.scrollTop = responsesDiv.scrollHeight;
-        }
-
-        // Call auto-scroll when page loads
-        window.onload = scrollToBottom;
-    </script>
 
 </body>
 </html>
@@ -155,7 +145,7 @@ def get_chatbot_response(question):
 
 # ✅ Append responses to HTML file
 def update_html(response_html):
-    """Update the chatbot_responses.html file with new responses."""
+    """Update index.html with new responses."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     new_entry = f"""
@@ -173,6 +163,8 @@ def update_html(response_html):
 
     with open(html_file, "w", encoding="utf-8") as file:
         file.write(updated_content)
+
+    print("✅ index.html updated successfully!")
 
 # ✅ Ensure the HTML file exists
 ensure_html_file()
