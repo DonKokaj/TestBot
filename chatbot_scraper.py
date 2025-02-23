@@ -53,6 +53,68 @@ def find_shadow_elements(driver, selector):
     except NoSuchElementException:
         return []
 
+# ✅ Ensure index.html exists before writing
+def ensure_html_file():
+    """Create index.html if it does not exist."""
+    if not os.path.exists(html_file):
+        with open(html_file, "w", encoding="utf-8") as file:
+            file.write("""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Responses</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 20px;
+            padding: 20px;
+            text-align: center;
+        }
+        #responses {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .response-entry {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .timestamp {
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Chatbot Responses</h2>
+    <div id="responses">
+        <!-- Responses will be appended here -->
+    </div>
+
+    <script>
+        // Auto-scroll to the bottom when new content is added
+        function scrollToBottom() {
+            var responsesDiv = document.getElementById("responses");
+            responsesDiv.scrollTop = responsesDiv.scrollHeight;
+        }
+
+        // Call auto-scroll when page loads
+        window.onload = scrollToBottom;
+    </script>
+
+</body>
+</html>
+            """)
+
 # ✅ Function to interact with chatbot and collect responses
 def get_chatbot_response(question):
     """Send a question to the chatbot and capture the response."""
@@ -112,9 +174,12 @@ def update_html(response_html):
     with open(html_file, "w", encoding="utf-8") as file:
         file.write(updated_content)
 
+# ✅ Ensure the HTML file exists
+ensure_html_file()
+
 # ✅ Collect responses and update HTML
 for question in questions:
     chatbot_response = get_chatbot_response(question)
     update_html(chatbot_response)
 
-print("✅ Chatbot responses updated in chatbot_responses.html")
+print("✅ Chatbot responses updated in index.html")
