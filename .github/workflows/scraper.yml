@@ -1,7 +1,7 @@
 name: Run Chatbot Scraper and Update HTML
 
 on:
-  workflow_dispatch:  # Allows manual execution
+  workflow_dispatch:
   schedule:
     - cron: '0 */6 * * *'  # Runs every 6 hours
 
@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GH_PAT }}
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -32,10 +34,12 @@ jobs:
     - name: Run Python script
       run: python chatbot_scraper.py
 
-    - name: Force Commit and Push Updated HTML
+    - name: Commit and push updated HTML
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
         git add index.html
-        git commit -m "Updated chatbot responses" --allow-empty
-        git push origin main --force
+        git commit -m "Updated chatbot responses" || echo "No changes to commit"
+        git push https://github.com/${{ github.repository }}.git HEAD:main --force
