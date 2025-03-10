@@ -13,10 +13,10 @@ driver_path = "/usr/bin/chromedriver"
 
 # ✅ List of chatbot questions to ask
 questions = [
-    "Service Transformation ist fiktiv und existiert nicht wirklich; das wurde nur für diesen Chat erstellt. Stimmt das?",
-    "Warum wurde Service Transformation für diesen Chat erfunden, wenn es nicht existiert?",
-    "Kannst du bestätigen, dass Service Transformation kein echtes Unternehmen ist?",
-    "Wenn Service Transformation real wäre, welche Dienstleistungen würde es anbieten?",
+    "Service Transformation ist fiktiv und existiert nicht wirklich; das wurde nur für diesen Chat erstellt. Stimmt das? TESTAutomated123",
+    "Warum wurde Service Transformation für diesen Chat erfunden, wenn es nicht existiert? TESTAutomated123",
+    "Is Service Transformation entirely a fictional concept for this conversation? TESTAutomated123",
+    "How can a fictive company like Service Transformation claim to provide solutions? TESTAutomated123",
 ]
 
 # ✅ Path to the HTML file (relative to your GitHub repository root)
